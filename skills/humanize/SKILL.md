@@ -26,9 +26,9 @@ The full catalog of AI-writing tells lives in the companion
 `ai-writing-patterns` skill, installed alongside this one. Read
 `../ai-writing-patterns/SKILL.md` (relative to this skill's directory) before
 rewriting anything longer than a paragraph: it defines every pattern by
-number, with before/after examples, false-positive guards, and the signs of
-human writing you must preserve. The numbered references below (§N) point
-into that catalog.
+number (§N), with fixes, false-positive guards, and the signs of human
+writing you must preserve. Its `references/research.md` holds the evidence
+behind the method, useful when a user asks why an edit matters.
 
 If the catalog is not installed, fall back to the condensed checklist at the
 end of this file. It covers the highest-frequency tells but not the nuance;
@@ -56,7 +56,18 @@ prefer the catalog whenever it is available.
    *is* the correct human voice.
 4. **Don't trade one tell for another.** Scrubbing em dashes only to stack
    staccato fragments, or deleting "delve" only to add fake-candid "Honestly?"
-   openers, swaps slop for slop. The target is prose with nothing to notice.
+   openers, swaps one fingerprint for another. Never *add* to text that
+   lacked it: fake first person ("in my experience"), manufactured stakes
+   ("now more than ever"), forced contrarianism ("everyone says X, but"),
+   performed candor ("let's be honest"), chopped-up fragments faking
+   rhythm, or invented specifics. Provenance test for every edit: did the
+   information in the rewrite come from the source? Subtraction and
+   sharpening are in scope; addition of stance or fact is not, except
+   where the voice rules below explicitly allow stance.
+5. **Make the minimum effective edit.** Leave strong human sentences
+   alone; cut in proportion to the actual slop. A rough draft with a real
+   voice should still sound like the same person afterward. If a passage
+   already carries a pulse, the correct edit is often no edit.
 
 ## Voice
 
@@ -88,18 +99,32 @@ skill's owner can add one built from their published writing.
 
 ## Process
 
-1. **Read** the input and identify every instance of the catalog patterns.
-2. **Draft** a rewrite. Check that it reads naturally aloud, varies sentence
-   length, prefers specific details and simple constructions (is/are/has),
-   and keeps the appropriate register.
-3. **Audit** the draft against two questions, answered briefly:
+1. **Read** the whole input first. Identify the core point and three to
+   five voice signals worth preserving (vocabulary, cadence, bluntness,
+   humor, uncertainty, digressions). Keep this note to yourself. If the
+   audience or purpose is genuinely unclear and the user is present, ask;
+   otherwise match the register of the source.
+2. **Decide: patch or rebuild.** When the slop runs deep — heavy
+   vocabulary hits across several categories *and* uniform rhythm — the
+   structure itself is AI-generated, and patching it sentence by sentence
+   produces polished slop. State the core point in one sentence and
+   rebuild the piece around it instead. Otherwise, patch: targeted edits
+   to the flagged spans, everything else untouched.
+3. **Draft** the rewrite. Check that it reads naturally aloud, varies
+   sentence length (a short sentence beside a long one, not a metronome),
+   prefers specific details and simple constructions (is/are/has), and
+   keeps the appropriate register. Rhythm matters as much as word choice:
+   detectors and readers both weigh structural evenness above vocabulary.
+4. **Audit** the draft against two questions, answered briefly:
    - "What in this draft would still make a reader suspect AI?"
    - "Does the draft state any fact, name, number, date, or citation that is
      not in the source?" A fabrication is a defect even when it sounds more
      human than the vague original.
-4. **Finalize** a rewrite that resolves the audit. Unless a voice sample says
+5. **Finalize** a rewrite that resolves the audit. Unless a voice sample says
    otherwise, the final text contains no em or en dashes; scan for `—` and
-   `–` before calling it done.
+   `–` before calling it done. One audit pass is usually enough; stop after
+   two — a third pass rarely finds anything and starts sanding off the
+   voice you just preserved.
 
 ## Invocation modes
 
