@@ -1,139 +1,68 @@
 # gio-skills
 
 [![skills.sh installs](https://skills.sh/b/gscalzo/gio-skills)](https://skills.sh/gscalzo/gio-skills)
+[![quality gates](https://github.com/gscalzo/gio-skills/actions/workflows/quality-gates.yml/badge.svg)](https://github.com/gscalzo/gio-skills/actions/workflows/quality-gates.yml)
 
-Agent skills for prose. Plain Markdown, portable across any harness that
-reads Agent Skills (`SKILL.md`), installable with the skills CLI or as a
-Claude Code plugin.
+A collection of agent skills, plugins, and other AI-related tooling. Skills
+are plain Markdown following the
+[Agent Skills specification](https://agentskills.io), portable across any
+harness that reads `SKILL.md`, and installable with the skills CLI or as
+Claude Code plugins.
 
-## Skills
+## Layout
 
-| Skill | What it does |
-|---|---|
-| `unslop` | Rewrites AI-generated prose so it reads as natural human writing. No invented facts, voice calibration from samples or saved profiles, draft → audit → final loop. |
-| `detect-ai-writing` | Analyzes text for AI fingerprints and reports a calibrated verdict with quoted evidence, counter-evidence, and false-positive guards. |
-| `voice-profile` | Builds reusable voice profiles from samples of someone's real writing, so rewrites sound like a specific author, brand, or team instead of a generic clean editor. |
-| `ai-writing-patterns` | The shared reference catalog the others load: 58 numbered patterns across vocabulary, rhetoric, tone, structure, formatting, and near-proof fingerprints, plus the research behind them. |
+```
+skills/<name>/          one skill per directory: SKILL.md plus optional
+                        references/, scripts/, assets/
+.claude-plugin/         marketplace and plugin manifests; each plugin
+                        bundles a set of skills
+docs/<bundle>.md        usage guide per bundle
+scripts/                validation and tooling
+```
 
-The active skills lean on the catalog as their single source of truth, so a
-pattern added there is picked up everywhere. The catalog's
-`references/research.md` collects the empirical studies (word-frequency
-measurements, detector false-positive rates, what actually makes prose read
-human) for when someone asks "says who?".
+Skills describe themselves: every `skills/<name>/SKILL.md` states what the
+skill does and when to use it, and each bundle has a guide under `docs/`.
+To see what is currently available:
+
+```bash
+npx skills add gscalzo/gio-skills --list
+```
 
 ## Installation
 
-### Skills CLI
+Everything, with the skills CLI:
 
 ```bash
-npx skills add gscalzo/gio-skills
+npx skills add gscalzo/gio-skills          # project-local
+npx skills add gscalzo/gio-skills --global # every project
+npx skills add gscalzo/gio-skills --skill <name>
 ```
 
-Install globally so the skills are available in every project:
-
-```bash
-npx skills add gscalzo/gio-skills --global
-```
-
-Pick a single skill:
-
-```bash
-npx skills add gscalzo/gio-skills --skill unslop
-```
-
-### Claude Code plugin
+As a Claude Code plugin:
 
 ```
 /plugin marketplace add gscalzo/gio-skills
-/plugin install writing@gio-skills
+/plugin install <plugin>@gio-skills
 ```
 
-Skills are then invoked as `/writing:unslop`, `/writing:detect-ai-writing`,
-`/writing:voice-profile` and `/writing:ai-writing-patterns`.
+Plugin skills are invoked as `/<plugin>:<skill>`. Manual installs also
+work: copy a skill directory into wherever your harness expects skills.
+Some skills reference sibling skills by relative path, so prefer installing
+a bundle together; each bundle's doc says what belongs with what.
 
-### Manual
+## Quality gates
 
-Copy any skill directory into wherever your harness expects skills:
+Every push runs the gates in CI, and they are expected to pass locally
+before committing:
 
 ```bash
-git clone https://github.com/gscalzo/gio-skills.git
-cp -r gio-skills/skills/unslop /path/to/your/skills/
+python3 scripts/validate-package.py   # structure, frontmatter, versions,
+                                      # cross-references, prose lint
+npx skills add . --list               # every skill is discoverable
 ```
 
-The skills look for each other by relative path (`../ai-writing-patterns`
-for the catalog, `../unslop` for saved voices), so install them together to
-get the full behavior. `unslop` and `detect-ai-writing` also work standalone
-through a condensed fallback list.
-
-## Usage
-
-Unslop pasted text or a file:
-
-```
-/unslop
-
-[paste your draft]
-```
-
-```
-Humanize the prose in content/blog/my-post.md
-```
-
-Check a text for AI tells:
-
-```
-Does this read as AI-written? [paste text]
-```
-
-## Voices
-
-Match a specific voice by pasting a writing sample into the conversation,
-or permanently with a saved profile:
-
-```
-Create a voice profile from these three posts: [paste or point at files]
-```
-
-The `voice-profile` skill analyzes the samples (rhythm, punctuation,
-lexicon, temperament) and saves the profile where `unslop` reads it
-automatically: `references/voice-profile.md` for the default voice, or
-`references/voices/<name>.md` for named voices you can ask for by name
-("rewrite this in the blog voice"). See
-`skills/unslop/references/README.md` for the format.
-
-Voice profiles contain real writing. The repo's `.gitignore` keeps them out
-of version control; keep personal profiles in a local or globally installed
-copy of the skills.
-
-## What these skills will not do
-
-They edit and they detect; they do not evade. No fake typos, no fabricated
-anecdotes, no detector-tricking noise, and the detector never presents a
-verdict as proof or grounds for punishment. The goal is writing a careful
-human would stand behind under their own name.
-
-## Credits and sources
-
-The catalog merges and deduplicates, with attribution:
-
-- [blader/humanizer](https://github.com/blader/humanizer) (MIT), itself
-  built from Wikipedia's
-  [Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
-- [petergyang/no-ai-slop](https://github.com/petergyang/no-ai-slop)
-- [conorbronsdon/avoid-ai-writing](https://github.com/conorbronsdon/avoid-ai-writing)
-- [Aboudjem/humanizer-skill](https://github.com/Aboudjem/humanizer-skill)
-- [gregorymm/humanize-text](https://github.com/gregorymm/humanize-text)
-- [tropes.fyi](https://tropes.fyi)
-
-Research citations live in
-`skills/ai-writing-patterns/references/research.md`.
-
-## Validation
-
-```bash
-python3 scripts/validate-package.py
-npx skills add . --list
-```
+`scripts/validate-package.py` is dependency-free Python; see `AGENTS.md`
+for what it enforces and for the contribution checklist.
 
 ## License
 
