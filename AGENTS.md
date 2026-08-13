@@ -15,7 +15,9 @@ shape, not its contents. Per-bundle documentation lives in `docs/`.
 ## Layout rules (installs depend on these)
 
 These constraints come from how the two install toolchains discover
-content. Breaking them silently breaks installation.
+content. Breaking them silently breaks installation. The full discovery
+rules, spec constraints, and the probe results behind them are documented
+in `docs/packaging.md`.
 
 - Skills live in `skills/<name>/` and the frontmatter `name` must equal
   the directory name. The skills CLI (`npx skills`) discovers

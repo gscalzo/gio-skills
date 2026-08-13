@@ -10,7 +10,7 @@ description: |
   unslop skills load this catalog as their shared source of truth.
 license: MIT
 metadata:
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # AI writing patterns

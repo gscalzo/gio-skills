@@ -9,7 +9,7 @@ description: |
   corporate voice), or update an existing profile with new samples.
 license: MIT
 metadata:
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Voice profile: capture how a person actually writes

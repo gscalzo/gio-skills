@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "writing",
   "description": "Prose skills: detect AI-generated writing, rewrite AI prose so it reads as natural human writing, and build voice profiles so rewrites sound like a specific author, backed by a shared catalog of AI-writing tells.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": {
     "name": "Giordano Scalzo",
     "url": "https://github.com/gscalzo"

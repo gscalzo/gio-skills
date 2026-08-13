@@ -92,4 +92,8 @@ The catalog merges and deduplicates, with attribution:
 - [tropes.fyi](https://tropes.fyi)
 
 Research citations live in
-`../skills/ai-writing-patterns/references/research.md`.
+`../skills/ai-writing-patterns/references/research.md`, which also covers
+detector internals (GPTZero, Pangram), community tooling heuristics, and
+the version-diff provenance method for when a draft and a final version
+are both available. How the repo serves both install toolchains is
+documented in `packaging.md`.

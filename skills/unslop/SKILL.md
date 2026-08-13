@@ -10,7 +10,7 @@ description: |
   text, files, and as an embedded step in a larger writing task.
 license: MIT
 metadata:
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # Unslop: rewrite AI prose as human prose
