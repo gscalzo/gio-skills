@@ -98,6 +98,68 @@ verdict, calibrate confidence, or answer "says who?". Compiled August 2026.
   tool is what this catalog targets: say one specific thing, from one
   perspective, in uneven sentences, without templates.
 
+## Detector internals: GPTZero and Pangram
+
+What the two serious commercial detectors publish about their own methods,
+and what the detect-ai-writing skill borrows. Pangram 4 details are
+primary-verified from their technical report; GPTZero details come from
+their published articles and support documentation.
+
+**GPTZero** began (2023) with two statistics: *perplexity* (how predictable
+each next word is to a language model; AI text scores low because it picks
+probable words) and *burstiness* (the variation of per-sentence perplexity
+and sentence structure across a document; humans vary, AI stays uniform).
+It has since moved to a multi-component deep-learning pipeline: a document
+classifier, sentence-by-sentence classification with per-sentence
+probabilities (documents labeled human / mixed / AI), a "Paraphraser
+Shield" trained on the output of a dozen humanizer tools, and an internet
+text search. Two published disciplines worth copying: confidence bands
+tuned so "high confidence" holds under 1% error, and score semantics (the
+document score is the probability the document is AI, not the fraction of
+AI content). After the Stanford non-native-writer study, GPTZero retrained
+on ESL corpora and reports large false-positive reductions there; they
+still advise that no score justifies punitive action alone.
+
+**Pangram** trains a transformer classifier against tens of millions of
+confirmed-human documents plus "synthetic mirrors": for each human
+document, an LLM is asked what the document's topic is and then asked to
+write on that topic, producing an AI twin of the same content. Training on
+mirror pairs forces the model to learn *how* text was written rather than
+*what it is about*, and an active-learning loop feeds every false positive
+back as a hard negative. Pangram 4 scores overlapping windows, smooths
+token labels (suppressing isolated flips unless there is boundary
+evidence), votes at sentence resolution, and decodes a document as human
+at roughly 90%+ human tokens, AI at 80%+ AI tokens, mixed between; an
+AI-assisted class (human ideas, AI wording, counted at half weight in the
+AI fraction) keeps lightly polished human work from being condemned. A
+dedicated humanizer head recognizes evasion transforms (typo injection,
+casing tricks, homoglyphs, commercial paraphrasers) at 90%+ per tool,
+while explicitly excluding innocent artifacts like OCR damage. Published
+error rates: false positives around 1 in 24,000 (including non-native
+corpora), false negatives under 0.4% across 26 frontier models. Their
+"AI Phrases" vocabulary scan runs only *after* a document is flagged, as
+evidence presentation; the classifier itself is structural. Their stated
+limitation is honest and matters here: the model "does not account for
+people who intentionally write like LLMs or who have absorbed elements of
+LLM style".
+
+**What the skills borrow:** the scope gate and ~50-word floor, the mirror
+test, topic invariance, sentence-level labeling with smoothing and the
+decode thresholds, the AI-assisted half-weight fraction, the separation of
+"probability AI was involved" from "fraction of AI text", the
+false-positive register counter-check, the humanizer-artifact scan, the
+vocabulary-as-second-pass ordering, and tiered confidence with abstention.
+What does not transfer to a prompt: web-scale text search and
+keystroke/edit-history provenance (GPTZero Origin's writing replay and
+paste detection); when process evidence matters, ask for version history
+instead.
+
+Sources: GPTZero technology and support pages (gptzero.me/technology,
+support.gptzero.me); Pangram 4 Technical Report
+(pangram-public.s3.us-east-1.amazonaws.com/pdf/pangram_4_technical_report.pdf);
+Pangram original technical report (arXiv:2402.14873); Pangram blog posts
+on AI phrases, humanizers, and minimum word counts (pangram.com/blog).
+
 ## Practitioner further reading
 
 - Wikipedia, "Signs of AI writing" (WikiProject AI Cleanup) — the field

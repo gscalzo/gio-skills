@@ -10,7 +10,7 @@ description: |
   machine-written. Reports evidence, not accusations.
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Detect AI writing
@@ -124,15 +124,54 @@ Do not treat these as AI evidence (catalog: What NOT to flag):
 
 ## Process
 
-1. Read the whole text once without judging.
-2. Read again, marking every catalog hit with its pattern number and quote.
-3. Mark every human sign with a quote.
-4. Compute rough density: distinct pattern types, total hits, and hits per
-   ~200 words for texts long enough to make density meaningful.
-5. Weigh: strong signals present? clusters or isolated hits? how much
-   counter-evidence? any context (author, era, register) that explains the
-   hits innocently?
-6. Deliver the report.
+The method adapts what the serious commercial detectors publish about their
+own internals (GPTZero's perplexity, burstiness, and sentence classes;
+Pangram's mirror comparison, decode thresholds, and humanizer detection;
+details in `../ai-writing-patterns/references/research.md`).
+
+1. **Scope gate.** Confirm the text is substantial open-ended prose. Lists
+   of facts, quotes, boilerplate, constrained formats, and summaries or
+   translations of human input carry almost no authorship signal; say so
+   instead of scoring them.
+2. **Read once** without judging, and infer the brief: what prompt or task
+   would produce this document?
+3. **Mirror test.** Mentally draft how a default LLM would answer that
+   exact brief, then compare the actual text against your draft: skeleton
+   (intro, symmetric body sections, wrap-up), transition choices, hedging
+   pattern, phrasing. High overlap is AI evidence; low overlap is human
+   evidence. Judge construction only, never subject matter: a text is not
+   AI because its topic is technical or its register formal.
+4. **Sentence pass.** Label each sentence human / AI-assisted / AI, using
+   three inputs: predictability (how expected is each next word given the
+   text so far: runs of sentences where every word is the obvious choice
+   read as AI; surprising-but-exact word choices read as human), catalog
+   hits with their pattern numbers, and human signs. Then smooth: an
+   isolated label flip with no register or format shift follows its
+   neighbors; a sustained run that starts at a style discontinuity (sudden
+   change in vocabulary register, error rate, rhythm, or formatting
+   habits) marks an authorship boundary, and each side gets judged
+   separately. "Human ideas in LLM wording" (specific lived content
+   delivered in smoothed stock phrasing) is AI-assisted, not AI-generated.
+5. **Aggregate.** Compute the sentence fractions and apply the decode
+   rule: at least ~90% human sentences reads as human, at least ~80% AI
+   sentences reads as AI-generated, anything between is mixed or
+   AI-assisted. Estimate AI involvement with assisted sentences counted at
+   half weight. Cite vocabulary as supporting evidence only after this
+   structural judgment; both major detectors treat word lists as
+   presentation-layer evidence, not the classifier.
+6. **Counter-check the known false-positive registers.** Non-native
+   English, rigid genres (legal, academic, corporate boilerplate),
+   formulaic student essays, and naturally uniform technical reference all
+   mimic AI statistics. If one fits, demand independent signals
+   (fingerprints, chat artifacts, gap-filling) before any AI-leaning
+   verdict.
+7. **Humanizer scan.** An AI skeleton wearing surface noise a competent
+   human would not produce (typos sprinkled through otherwise polished
+   prose, wrong-register synonym swaps, odd casing, homoglyphs or
+   zero-width characters) is evasion, not humanity: label it "AI-generated,
+   likely post-processed to evade detection". OCR damage and copy-paste
+   corruption are not evasion; check the innocent explanation first.
+8. Deliver the report.
 
 ## Report format
 
@@ -140,11 +179,21 @@ Use this structure (compress freely for short texts):
 
 ```
 ## Verdict
-[Likely AI-generated | Likely AI-assisted or AI-edited | Mixed signals |
+[Likely AI-generated | Likely AI-assisted or AI-edited | Mixed authorship |
  Likely human-written | Insufficient signal]  (confidence: low/moderate/high)
-One-sentence justification.
+One-sentence justification. Two numbers, kept separate: how confident you
+are that AI was involved at all, and roughly what fraction of the text
+reads as AI-touched (assisted counted at half weight). "90% confident AI
+was involved" and "90% of the text is AI" are different claims; never
+conflate them.
+
+## Sentence-level map  (mixed or longer texts)
+Which spans read as AI, which as human, where the boundaries fall and what
+shifts there.
 
 ## Evidence of AI generation
+- mirror test: how closely the document tracks a default LLM's answer to
+  the same brief
 - §N pattern-name (strength): "exact quote" — one-line note
   (group repeated instances; give counts)
 

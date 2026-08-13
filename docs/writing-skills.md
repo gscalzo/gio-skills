@@ -21,6 +21,16 @@ for the catalog, `../unslop` for saved voices), so install them together to
 get the full behavior. `unslop` and `detect-ai-writing` also work standalone
 through a condensed fallback list.
 
+The detector's method adapts the published techniques of the two serious
+commercial detectors: GPTZero (predictability and burstiness scoring,
+sentence-level classification into human, mixed, and AI, tuned confidence
+bands) and Pangram (mirror comparison against a default LLM's answer to
+the same brief, decode thresholds, mixed-authorship smoothing, humanizer
+detection). `unslop` applies the same findings in reverse: structure and
+rhythm beat word swaps, and evasion noise is treated as a defect, not a
+technique. The detector-internals section of the catalog's
+`references/research.md` documents what was borrowed and from where.
+
 ## Usage
 
 Unslop pasted text or a file:

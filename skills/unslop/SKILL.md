@@ -10,7 +10,7 @@ description: |
   text, files, and as an embedded step in a larger writing task.
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Unslop: rewrite AI prose as human prose
@@ -68,7 +68,12 @@ prefer the catalog whenever it is available.
    rhythm, or invented specifics. Provenance test for every edit: did the
    information in the rewrite come from the source? Subtraction and
    sharpening are in scope; addition of stance or fact is not, except
-   where the voice rules below explicitly allow stance.
+   where the voice rules below explicitly allow stance. Evasion noise is
+   in the same bucket: injected typos, odd casing, and unnatural synonym
+   swaps do not humanize anything; modern detectors classify that
+   combination explicitly as post-processed AI, and it makes the prose
+   worse. Real rewriting is the only move that works on readers and
+   detectors alike.
 5. **Make the minimum effective edit.** Leave strong human sentences
    alone; cut in proportion to the actual slop. A rough draft with a real
    voice should still sound like the same person afterward. If a passage
@@ -130,8 +135,14 @@ plain.
    prefers specific details and simple constructions (is/are/has), and
    keeps the appropriate register. Rhythm matters as much as word choice:
    detectors and readers both weigh structural evenness above vocabulary.
-4. **Audit** the draft against two questions, answered briefly:
+4. **Audit** the draft against three questions, answered briefly:
    - "What in this draft would still make a reader suspect AI?"
+   - "Would a default LLM, asked for this same brief, produce this shape?"
+     Detectors trained on millions of documents key on the skeleton
+     (context-setting intro, symmetric body, wrap-up close) and on uniform
+     sentence rhythm more than on any word choice. List the draft's
+     sentence lengths; if they sit in a narrow band, or the outline still
+     matches the template answer, restructure rather than reword.
    - "Does the draft state any fact, name, number, date, or citation that is
      not in the source?" A fabrication is a defect even when it sounds more
      human than the vague original.
