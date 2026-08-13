@@ -12,7 +12,7 @@ marketplace (`.claude-plugin/marketplace.json`). There is no build step.
 The root `README.md` stays generic on purpose: it describes the repo's
 shape, not its contents. Per-bundle documentation lives in `docs/`.
 
-## Layout rules (load-bearing)
+## Layout rules (installs depend on these)
 
 These constraints come from how the two install toolchains discover
 content. Breaking them silently breaks installation.

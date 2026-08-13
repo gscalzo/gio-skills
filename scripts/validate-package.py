@@ -212,6 +212,7 @@ PROSE_BANS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"\bIn today's\b", re.IGNORECASE), "catalog opener: In today's"),
     (re.compile(r"\bLet's dive\b", re.IGNORECASE), "catalog signposting: Let's dive"),
     (re.compile(r"\bit's worth noting\b", re.IGNORECASE), "catalog filler: it's worth noting"),
+    (re.compile(r"\bload[- ]bearing\b", re.IGNORECASE), "banned phrase: load-bearing (see CLAUDE.md)"),
 ]
 
 for doc in DOC_FILES:
