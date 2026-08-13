@@ -5,12 +5,12 @@
     "name": "gscalzo",
     "url": "https://github.com/gscalzo"
   },
-  "description": "Giordano Scalzo's agent skills, installable as Claude Code plugins or via the skills CLI.",
+  "description": "Agent skills for prose, installable as Claude Code plugins or via the skills CLI.",
   "plugins": [
     {
       "name": "writing",
       "source": "./",
-      "description": "Prose skills: detect AI-generated writing and rewrite AI prose so it reads as natural human writing, backed by a shared catalog of AI-writing tells.",
+      "description": "Prose skills: detect AI-generated writing, rewrite AI prose so it reads as natural human writing, and build voice profiles so rewrites sound like a specific author, backed by a shared catalog of AI-writing tells.",
       "license": "MIT",
       "keywords": ["writing", "editing", "ai-detection", "humanize", "prose", "style", "slop"]
     }

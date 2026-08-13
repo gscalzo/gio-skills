@@ -2,20 +2,21 @@
 
 [![skills.sh installs](https://skills.sh/b/gscalzo/gio-skills)](https://skills.sh/gscalzo/gio-skills)
 
-Giordano Scalzo's agent skills. Plain Markdown, portable across any harness
-that reads Agent Skills (`SKILL.md`), installable with the skills CLI or as
-a Claude Code plugin.
+Agent skills for prose. Plain Markdown, portable across any harness that
+reads Agent Skills (`SKILL.md`), installable with the skills CLI or as a
+Claude Code plugin.
 
 ## Skills
 
 | Skill | What it does |
 |---|---|
-| `unslop` | Rewrites AI-generated prose so it reads as natural human writing. No invented facts, voice calibration from samples, draft → audit → final loop. |
+| `unslop` | Rewrites AI-generated prose so it reads as natural human writing. No invented facts, voice calibration from samples or saved profiles, draft → audit → final loop. |
 | `detect-ai-writing` | Analyzes text for AI fingerprints and reports a calibrated verdict with quoted evidence, counter-evidence, and false-positive guards. |
-| `ai-writing-patterns` | The shared reference catalog both skills load: 58 numbered patterns across vocabulary, rhetoric, tone, structure, formatting, and near-proof fingerprints, plus the research behind them. |
+| `voice-profile` | Builds reusable voice profiles from samples of someone's real writing, so rewrites sound like a specific author, brand, or team instead of a generic clean editor. |
+| `ai-writing-patterns` | The shared reference catalog the others load: 58 numbered patterns across vocabulary, rhetoric, tone, structure, formatting, and near-proof fingerprints, plus the research behind them. |
 
-The two active skills lean on the catalog as their single source of truth,
-so a pattern added there is picked up by both. The catalog's
+The active skills lean on the catalog as their single source of truth, so a
+pattern added there is picked up everywhere. The catalog's
 `references/research.md` collects the empirical studies (word-frequency
 measurements, detector false-positive rates, what actually makes prose read
 human) for when someone asks "says who?".
@@ -47,8 +48,8 @@ npx skills add gscalzo/gio-skills --skill unslop
 /plugin install writing@gio-skills
 ```
 
-Skills are then invoked as `/writing:unslop`, `/writing:detect-ai-writing`
-and `/writing:ai-writing-patterns`.
+Skills are then invoked as `/writing:unslop`, `/writing:detect-ai-writing`,
+`/writing:voice-profile` and `/writing:ai-writing-patterns`.
 
 ### Manual
 
@@ -59,9 +60,10 @@ git clone https://github.com/gscalzo/gio-skills.git
 cp -r gio-skills/skills/unslop /path/to/your/skills/
 ```
 
-`unslop` and `detect-ai-writing` look for the catalog at
-`../ai-writing-patterns/SKILL.md`, so install the three together to get the
-full pattern set. Each works standalone through a condensed fallback list.
+The skills look for each other by relative path (`../ai-writing-patterns`
+for the catalog, `../unslop` for saved voices), so install them together to
+get the full behavior. `unslop` and `detect-ai-writing` also work standalone
+through a condensed fallback list.
 
 ## Usage
 
@@ -83,9 +85,25 @@ Check a text for AI tells:
 Does this read as AI-written? [paste text]
 ```
 
-Match your own voice by pasting a sample first, or permanently by adding a
-`references/voice-profile.md` inside the `unslop` skill directory (see
-`skills/unslop/references/README.md`).
+## Voices
+
+Match a specific voice by pasting a writing sample into the conversation,
+or permanently with a saved profile:
+
+```
+Create a voice profile from these three posts: [paste or point at files]
+```
+
+The `voice-profile` skill analyzes the samples (rhythm, punctuation,
+lexicon, temperament) and saves the profile where `unslop` reads it
+automatically: `references/voice-profile.md` for the default voice, or
+`references/voices/<name>.md` for named voices you can ask for by name
+("rewrite this in the blog voice"). See
+`skills/unslop/references/README.md` for the format.
+
+Voice profiles contain real writing. The repo's `.gitignore` keeps them out
+of version control; keep personal profiles in a local or globally installed
+copy of the skills.
 
 ## What these skills will not do
 

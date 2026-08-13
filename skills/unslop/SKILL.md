@@ -10,7 +10,7 @@ description: |
   text, files, and as an embedded step in a larger writing task.
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Unslop: rewrite AI prose as human prose
@@ -94,13 +94,23 @@ rewriting:
    if the sample uses em dashes, keep them at roughly the sample's frequency.
    Matching the author beats scrubbing the tell.
 
-### Voice profile file
+### Voice profile files
 
-If a file named `references/voice-profile.md` exists inside this skill's
-directory, treat it as a standing writing sample: read it and apply the same
-calibration automatically, without the user having to paste anything. The
-file is not shipped by default; `references/README.md` explains how the
-skill's owner can add one built from their published writing.
+Voice profiles are standing writing samples stored inside this skill's
+directory, so rewrites can match a specific author without pasting samples
+each time. The companion `voice-profile` skill builds them; none ship by
+default.
+
+- `references/voice-profile.md` — the default voice. If it exists, read it
+  and apply the same calibration automatically.
+- `references/voices/<name>.md` — named voices (blog, newsletter, work...).
+  Use one when the user names it ("rewrite this in the blog voice"). If
+  they name a voice that doesn't exist, list the ones that do.
+
+A named voice the user asked for outranks the default profile; a sample
+pasted in the conversation outranks both. No profile files means the
+default behavior: remove the tells, match the source register, keep it
+plain.
 
 ## Process
 

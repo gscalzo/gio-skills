@@ -1,19 +1,31 @@
-# Voice profile (optional)
+# Voice profiles (optional)
 
-Drop a file named `voice-profile.md` in this directory and the unslop
-skill will calibrate every rewrite to it automatically, as if the user had
-pasted a writing sample.
+Files in this directory teach the unslop skill to write like a specific
+person instead of a generic clean editor:
 
-Two formats work, and they can be combined:
+- `voice-profile.md` — the default voice, applied to every rewrite
+  automatically.
+- `voices/<name>.md` — named voices (`blog.md`, `newsletter.md`,
+  `work.md`), applied when a rewrite request names them.
 
-1. **Raw samples.** Two to five paragraphs of your own published writing,
-   pasted verbatim. Pick passages that sound like you on a good day.
-2. **A distilled profile.** A short analysis of your habits: typical
-   sentence-length mix, punctuation you do and don't use, recurring
-   constructions, words you'd never write, how you open and close pieces.
+The easiest way to create one is the companion `voice-profile` skill: give
+it a few pieces of real writing and it analyzes the rhythm, punctuation,
+lexicon, and temperament, then saves the profile here in the format unslop
+expects. Hand-written profiles work too; two formats are understood, alone
+or combined:
 
-Raw samples are more robust; a distilled profile is easier to maintain.
-When both are present, the samples win on any disagreement.
+1. **Raw samples.** Two to five paragraphs of the author's writing, pasted
+   verbatim. Pick passages that sound like them on a good day.
+2. **A distilled profile.** A short analysis of habits: sentence-length
+   mix, punctuation they do and don't use, recurring constructions, words
+   they'd never write, how they open and close pieces.
 
-No file here means the skill uses its default behavior: remove AI tells,
-match the register of the source text, and keep the result plain.
+Raw samples win on any disagreement with the distilled notes.
+
+Nothing here means default behavior: remove AI tells, match the register
+of the source text, keep the result plain.
+
+**Before committing a profile:** it contains someone's real writing. In a
+shared or public repository, keep personal profiles out of version control
+(this repo's `.gitignore` already excludes this directory's profiles) or
+install the skills globally and keep profiles in the installed copy.

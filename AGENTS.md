@@ -25,9 +25,15 @@ marketplace (`.claude-plugin/marketplace.json`, plugin `writing`, source
 - `skills/ai-writing-patterns/SKILL.md` is the single source of truth for
   the tell catalog: 58 numbered patterns (`### N. Title`), contiguous from
   1. `detect-ai-writing` and `unslop` reference them as §N and carry
-  condensed fallback lists. If you add, remove, or renumber patterns,
-  update the §N references in both skills, the fallback lists if affected,
-  and the pattern count in `README.md` in the same change.
+  condensed fallback lists; `voice-profile` uses the catalog to avoid
+  canonizing AI tells as someone's voice. If you add, remove, or renumber
+  patterns, update the §N references in the other skills, the fallback
+  lists if affected, and the pattern count in `README.md` in the same
+  change.
+- Voice profiles (`skills/unslop/references/voice-profile.md` and
+  `voices/`) are user data, gitignored on purpose: they contain someone's
+  real writing and never belong in the public repo. Keep the repo generic;
+  no personal names, sites, or writing samples in skill content.
 - Versions: each skill's `metadata.version` and `.claude-plugin/plugin.json`
   `version` are bumped together and must match.
 - Keep frontmatter portable: `name`, `description`, `license`,
