@@ -1,6 +1,6 @@
 # Voice profile (optional)
 
-Drop a file named `voice-profile.md` in this directory and the humanize
+Drop a file named `voice-profile.md` in this directory and the unslop
 skill will calibrate every rewrite to it automatically, as if the user had
 pasted a writing sample.
 

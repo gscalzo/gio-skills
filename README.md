@@ -10,7 +10,7 @@ a Claude Code plugin.
 
 | Skill | What it does |
 |---|---|
-| `humanize` | Rewrites AI-generated prose so it reads as natural human writing. No invented facts, voice calibration from samples, draft → audit → final loop. |
+| `unslop` | Rewrites AI-generated prose so it reads as natural human writing. No invented facts, voice calibration from samples, draft → audit → final loop. |
 | `detect-ai-writing` | Analyzes text for AI fingerprints and reports a calibrated verdict with quoted evidence, counter-evidence, and false-positive guards. |
 | `ai-writing-patterns` | The shared reference catalog both skills load: 58 numbered patterns across vocabulary, rhetoric, tone, structure, formatting, and near-proof fingerprints, plus the research behind them. |
 
@@ -37,7 +37,7 @@ npx skills add gscalzo/gio-skills --global
 Pick a single skill:
 
 ```bash
-npx skills add gscalzo/gio-skills --skill humanize
+npx skills add gscalzo/gio-skills --skill unslop
 ```
 
 ### Claude Code plugin
@@ -47,7 +47,7 @@ npx skills add gscalzo/gio-skills --skill humanize
 /plugin install writing@gio-skills
 ```
 
-Skills are then invoked as `/writing:humanize`, `/writing:detect-ai-writing`
+Skills are then invoked as `/writing:unslop`, `/writing:detect-ai-writing`
 and `/writing:ai-writing-patterns`.
 
 ### Manual
@@ -56,19 +56,19 @@ Copy any skill directory into wherever your harness expects skills:
 
 ```bash
 git clone https://github.com/gscalzo/gio-skills.git
-cp -r gio-skills/skills/humanize /path/to/your/skills/
+cp -r gio-skills/skills/unslop /path/to/your/skills/
 ```
 
-`humanize` and `detect-ai-writing` look for the catalog at
+`unslop` and `detect-ai-writing` look for the catalog at
 `../ai-writing-patterns/SKILL.md`, so install the three together to get the
 full pattern set. Each works standalone through a condensed fallback list.
 
 ## Usage
 
-Humanize pasted text or a file:
+Unslop pasted text or a file:
 
 ```
-/humanize
+/unslop
 
 [paste your draft]
 ```
@@ -84,8 +84,8 @@ Does this read as AI-written? [paste text]
 ```
 
 Match your own voice by pasting a sample first, or permanently by adding a
-`references/voice-profile.md` inside the `humanize` skill directory (see
-`skills/humanize/references/README.md`).
+`references/voice-profile.md` inside the `unslop` skill directory (see
+`skills/unslop/references/README.md`).
 
 ## What these skills will not do
 

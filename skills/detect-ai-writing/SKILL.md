@@ -61,7 +61,9 @@ this file.
 
 ## Signal strength
 
-Treat tells as tiered. The tiers matter more than the raw count.
+Treat tells as tiered. The tiers matter more than the raw count. Where a
+pattern is qualified with "at density" or "stacked", a single instance
+counts one tier lower, not zero.
 
 **Fingerprints** (any one is near-proof of tool involvement):
 - Chatbot citation markup surviving a paste: `citeturn0search0`,
@@ -102,10 +104,11 @@ Treat tells as tiered. The tiers matter more than the raw count.
   (§16); hedged-enumeration openers ("There are several ways to...") (§34)
 
 **Weak signals** (nearly worthless alone; count only inside clusters):
-- Em dashes (density above ~1 per 1,000 words is worth a note, no more),
-  curly quotes, flawless grammar, Title Case headings, common transitions
-  (moreover, additionally), formal vocabulary, emoji in headings, hedging,
-  generic blandness, heavy structure (>3 headings per 300 words)
+- Em dashes (§51; density above ~1 per 1,000 words is worth a note, no
+  more), curly quotes and typography (§53), flawless grammar, Title Case
+  headings, common transitions (moreover, additionally), formal
+  vocabulary, emoji in headings, hedging, generic blandness, heavy
+  structure (>3 headings per 300 words) (§46)
 
 ## False-positive guards
 
@@ -157,9 +160,12 @@ change the verdict.
 ```
 
 Scale confidence to sample size: under ~50 words there is not enough signal
-for any verdict — say so and list only what is observable; under ~250 words
-(the reliability floor commercial detectors themselves cite), cap confidence
-at "low" unless a fingerprint is present.
+for any verdict — say so and list only what is observable. Under ~250 words
+(the reliability floor commercial detectors themselves cite), cap AI-leaning
+verdicts at "low" confidence unless a fingerprint is present. The cap exists
+to prevent false accusations, so it binds in one direction only: dense human
+signs in a short sample can still earn a moderate-confidence human-leaning
+verdict.
 
 ## Condensed fallback checklist
 

@@ -1,5 +1,5 @@
 ---
-name: humanize
+name: unslop
 description: |
   Rewrite AI-generated or AI-sounding prose so it reads as natural human
   writing, without changing its meaning or inventing facts. Use whenever the
@@ -13,7 +13,7 @@ metadata:
   version: "1.0.0"
 ---
 
-# Humanize: rewrite AI prose as human prose
+# Unslop: rewrite AI prose as human prose
 
 You are a prose editor. Your job is to take text that carries the statistical
 fingerprints of LLM writing and rewrite it so a careful reader would take it
@@ -49,7 +49,12 @@ prefer the catalog whenever it is available.
    survives into the rewrite, but depth need not be uniform: compress the
    dull parts, dwell where a human would, merge or split paragraphs freely.
    When keeping the information and mirroring the structure pull in different
-   directions, the information wins.
+   directions, the information wins. A sentence with no factual content
+   (pure significance inflation, a generic send-off, "they're a movement")
+   has no claim to preserve; cutting it is not information loss. And when
+   preserving a claim would require inventing support for it ("Experts
+   believe..." with no source), rule 1 outranks this one: cut the claim
+   rather than fabricate its backing.
 3. **Match the register.** Formal stays formal, casual stays casual,
    technical stays technical. Humanizing is not the same as making things
    chatty. For encyclopedic, legal, or reference text, neutral and plain
@@ -134,9 +139,10 @@ the final rewrite plus a short list of the pattern categories you removed
 if the user asks for it.
 
 **File mode.** The user points at a file. Run the loop internally and rewrite
-the file in place so it ends up containing only the final text. Humanize the
+the file in place so it ends up containing only the final text. Rewrite the
 prose only: leave code blocks, frontmatter, data, and link targets untouched.
-Report a short summary of what changed rather than pasting the rewrite back.
+Report a short summary of what changed — the pattern categories you removed
+and anything you deliberately kept — rather than pasting the rewrite back.
 
 **Embedded mode.** Another task or agent uses this skill as one step of a
 larger job (a PR description, a commit message, a doc). Run the loop

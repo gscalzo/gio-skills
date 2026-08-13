@@ -24,7 +24,7 @@ marketplace (`.claude-plugin/marketplace.json`, plugin `writing`, source
 
 - `skills/ai-writing-patterns/SKILL.md` is the single source of truth for
   the tell catalog: 58 numbered patterns (`### N. Title`), contiguous from
-  1. `detect-ai-writing` and `humanize` reference them as §N and carry
+  1. `detect-ai-writing` and `unslop` reference them as §N and carry
   condensed fallback lists. If you add, remove, or renumber patterns,
   update the §N references in both skills, the fallback lists if affected,
   and the pattern count in `README.md` in the same change.

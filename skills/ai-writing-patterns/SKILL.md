@@ -7,7 +7,7 @@ description: |
   writing. Consult whenever analyzing text for AI authorship, editing AI
   prose to sound human, discussing "AI slop" or ChatGPT-isms, or deciding
   whether a specific phrase or habit is an AI tell. The detect-ai-writing and
-  humanize skills load this catalog as their shared source of truth.
+  unslop skills load this catalog as their shared source of truth.
 license: MIT
 metadata:
   version: "1.0.0"
@@ -16,7 +16,7 @@ metadata:
 # AI writing patterns
 
 The shared tell catalog behind `detect-ai-writing` (which cites these
-patterns as evidence) and `humanize` (which removes them). Pattern numbers
+patterns as evidence) and `unslop` (which removes them). Pattern numbers
 (§N) are stable identifiers; both skills reference them.
 
 Why these patterns exist: LLMs predict the statistically likely next token,
