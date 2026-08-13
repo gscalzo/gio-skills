@@ -63,7 +63,9 @@ this file.
 
 Treat tells as tiered. The tiers matter more than the raw count. Where a
 pattern is qualified with "at density" or "stacked", a single instance
-counts one tier lower, not zero.
+counts one tier lower, not zero. A phrase that merely resembles a listed
+pattern without matching it (a "right?" aside is not "Sound familiar?")
+counts as very weak at most: the catalog names formulas, not shapes.
 
 **Fingerprints** (any one is near-proof of tool involvement):
 - Chatbot citation markup surviving a paste: `citeturn0search0`,
@@ -211,10 +213,10 @@ change the verdict.
 Scale confidence to sample size: under ~50 words there is not enough signal
 for any verdict — say so and list only what is observable. Under ~250 words
 (the reliability floor commercial detectors themselves cite), cap AI-leaning
-verdicts at "low" confidence unless a fingerprint is present. The cap exists
-to prevent false accusations, so it binds in one direction only: dense human
-signs in a short sample can still earn a moderate-confidence human-leaning
-verdict.
+verdicts at "low" confidence unless a fingerprint is present, and cap
+human-leaning verdicts at "moderate": the asymmetry exists to prevent false
+accusations, but "high" confidence in either direction needs a full-length
+sample or a fingerprint.
 
 ## Condensed fallback checklist
 
