@@ -1,0 +1,52 @@
+name: quality-gates
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  validate:
+    name: Package validation and prose lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 scripts/validate-package.py
+
+  discovery:
+    name: Skills CLI discovery
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Every skill directory is discovered
+        run: |
+          out="$(npx -y skills add . --list 2>&1)"
+          echo "$out"
+          status=0
+          for dir in skills/*/; do
+            name="$(basename "$dir")"
+            if ! printf '%s' "$out" | grep -q "$name"; then
+              echo "::error::skills CLI did not discover $name"
+              status=1
+            fi
+          done
+          exit "$status"
+
+  plugin:
+    name: Claude Code plugin validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate plugin manifests
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          claude plugin validate .
