@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "apple-apps",
+  "description": "Blueprint for starting and running a native Apple app built mostly by coding agents: project shape, local quality gates, agent roles, verification, and one-command installs.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Giordano Scalzo",
+    "url": "https://github.com/gscalzo"
+  },
+  "homepage": "https://github.com/gscalzo/gio-skills",
+  "repository": "https://github.com/gscalzo/gio-skills",
+  "license": "MIT",
+  "keywords": ["apple", "swift", "swiftui", "macos", "ios", "quality-gates", "agents"]
+}

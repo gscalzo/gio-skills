@@ -3,9 +3,10 @@
 
 The repo's quality gate. Enforces:
 - repo shape (no root SKILL.md; skills/ present and populated)
-- manifest sanity (marketplace.json / plugin.json parse and agree)
+- manifest sanity (marketplace.json and every declared plugin.json parse and agree)
 - portable frontmatter per skill (name/description constraints, version)
 - the 500-line SKILL.md budget
+- versions agree within each bundle (a plugin and its skills)
 - writing-bundle integrity (catalog numbering, resolvable paragraph-sign
   references, pattern-count claims, shared-catalog pointers)
 - prose lint on repo docs (the bundle's own standard, applied to itself)
@@ -51,40 +52,89 @@ if not skill_dirs:
 
 # --- Plugin manifests -------------------------------------------------------
 
-try:
-    plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
-except (OSError, json.JSONDecodeError) as exc:
-    plugin = {}
-    fail(f".claude-plugin/plugin.json unreadable: {exc}")
+def load_json(path: Path, label: str) -> dict:
+    try:
+        return json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        fail(f"{label} unreadable: {exc}")
+        return {}
 
-try:
-    marketplace = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text())
-except (OSError, json.JSONDecodeError) as exc:
-    marketplace = {}
-    fail(f".claude-plugin/marketplace.json unreadable: {exc}")
 
-if plugin and marketplace:
-    listed = {entry.get("name") for entry in marketplace.get("plugins", [])}
-    if plugin.get("name") not in listed:
+marketplace = load_json(ROOT / ".claude-plugin" / "marketplace.json", ".claude-plugin/marketplace.json")
+listed_entries = marketplace.get("plugins", [])
+listed = {entry.get("name") for entry in listed_entries}
+
+declared_sources = {entry.get("source") for entry in listed_entries}
+plugins_dir = ROOT / "plugins"
+if plugins_dir.is_dir():
+    for plugin_dir in sorted(d for d in plugins_dir.iterdir() if d.is_dir()):
+        expected = f"./plugins/{plugin_dir.name}"
+        if expected not in declared_sources:
+            fail(
+                f"plugins/{plugin_dir.name}/ has no marketplace entry with "
+                f"source {expected!r}; undeclared plugins are invisible to the skills CLI"
+            )
+
+# A bundle is a plugin plus the skills directory it ships. The root plugin
+# owns the top-level skills/; every other declared plugin lives under its own
+# source directory with its own plugin.json and skills/.
+bundles: list[dict] = []
+
+root_plugin = load_json(ROOT / ".claude-plugin" / "plugin.json", ".claude-plugin/plugin.json")
+if root_plugin and marketplace:
+    if root_plugin.get("name") not in listed:
         fail(
-            f"plugin.json name {plugin.get('name')!r} is not listed in "
+            f"plugin.json name {root_plugin.get('name')!r} is not listed in "
             f"marketplace.json plugins {sorted(listed)}"
         )
-    for entry in marketplace.get("plugins", []):
-        if entry.get("name") == plugin.get("name") and entry.get("source") != "./":
+    for entry in listed_entries:
+        if entry.get("name") == root_plugin.get("name") and entry.get("source") != "./":
             fail(
                 "the root plugin's marketplace source must be './' so the "
                 "plugin picks up the top-level skills/ directory"
             )
+bundles.append(
+    {
+        "name": root_plugin.get("name", "root"),
+        "plugin": root_plugin,
+        "skills_dir": SKILLS_DIR,
+    }
+)
 
-plugin_version = str(plugin.get("version", ""))
+for entry in listed_entries:
+    source = entry.get("source")
+    if source == "./" and entry.get("name") != root_plugin.get("name"):
+        fail(
+            f"marketplace plugin {entry.get('name')!r} uses source './', which is "
+            f"reserved for the root plugin {root_plugin.get('name')!r}"
+        )
+        continue
+    if entry.get("name") == root_plugin.get("name"):
+        continue
+    if not isinstance(source, str) or not source.startswith("./"):
+        fail(f"marketplace plugin {entry.get('name')!r}: source must be a './' relative path")
+        continue
+    plugin_root = ROOT / source
+    manifest_path = plugin_root / ".claude-plugin" / "plugin.json"
+    manifest = load_json(manifest_path, f"{source}/.claude-plugin/plugin.json")
+    if manifest and manifest.get("name") != entry.get("name"):
+        fail(
+            f"{source}: plugin.json name {manifest.get('name')!r} != "
+            f"marketplace name {entry.get('name')!r}"
+        )
+    plugin_skills = plugin_root / "skills"
+    if not plugin_skills.is_dir():
+        fail(f"{source}: skills/ directory is missing")
+    bundles.append({"name": entry.get("name"), "plugin": manifest, "skills_dir": plugin_skills})
 
 # --- Individual skills ------------------------------------------------------
 
 FRONTMATTER = re.compile(r"\A---\n(.*?)\n---\n", re.DOTALL)
 NAME_FORMAT = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 versions: dict[str, str] = {}
-skill_texts: dict[str, str] = {}
+skill_texts: dict[str, str] = {}  # writing bundle only; feeds catalog checks
+extra_prose_files: list[Path] = []  # markdown of non-root plugins, prose-linted
+seen_names: dict[str, str] = {}
 
 
 def extract_description(frontmatter: str) -> str | None:
@@ -107,65 +157,91 @@ def extract_description(frontmatter: str) -> str | None:
     return None
 
 
-for skill_dir in skill_dirs:
-    name = skill_dir.name
-    skill_path = skill_dir / "SKILL.md"
-    if not skill_path.exists():
-        fail(f"{name}: missing SKILL.md")
-        continue
-    text = skill_path.read_text()
-    skill_texts[name] = text
-
-    match = FRONTMATTER.match(text)
-    if not match:
-        fail(f"{name}: SKILL.md must start with YAML frontmatter")
-        continue
-    frontmatter = match.group(1)
-
-    declared = re.search(r"(?m)^name:\s*(\S+)\s*$", frontmatter)
-    if not declared:
-        fail(f"{name}: frontmatter has no name field")
-    elif declared.group(1) != name:
-        fail(f"{name}: frontmatter name {declared.group(1)!r} != directory name")
-    if not NAME_FORMAT.match(name) or len(name) > 64:
-        fail(
-            f"{name}: skill names are lowercase letters, digits, and single "
-            "hyphens, at most 64 characters"
-        )
-
-    description = extract_description(frontmatter)
-    if not description:
-        fail(f"{name}: frontmatter has no (or an empty) description field")
-    elif len(description) > 1024:
-        fail(f"{name}: description is {len(description)} chars; the spec caps it at 1024")
-
-    for nonportable in ("compatibility:", "allowed-tools:"):
-        if re.search(rf"(?m)^{re.escape(nonportable)}", frontmatter):
-            fail(f"{name}: remove nonportable frontmatter key {nonportable[:-1]}")
-
-    version = re.search(r'(?m)^\s+version:\s*["\']([^"\']+)["\']\s*$', frontmatter)
-    if version:
-        versions[name] = version.group(1)
-    else:
-        fail(f"{name}: metadata.version is missing")
-
-    if len(text.splitlines()) > 500:
-        fail(f"{name}: SKILL.md exceeds the 500-line portability budget")
-
-    if name in CATALOG_CONSUMERS and f"../{CATALOG}/SKILL.md" not in text:
-        fail(f"{name}: must point at the shared catalog via ../{CATALOG}/SKILL.md")
-
-# --- Version agreement ------------------------------------------------------
-
-all_versions = set(versions.values()) | ({plugin_version} if plugin_version else set())
-if len(all_versions) > 1:
-    fail(
-        f"version mismatch across package: {versions}, plugin.json={plugin_version!r}"
+for bundle in bundles:
+    bundle_name = bundle["name"]
+    bundle_skills_dir: Path = bundle["skills_dir"]
+    is_root = bundle_skills_dir == SKILLS_DIR
+    bundle_dirs = (
+        sorted(d for d in bundle_skills_dir.iterdir() if d.is_dir())
+        if bundle_skills_dir.is_dir()
+        else []
     )
+    if not bundle_dirs:
+        fail(f"bundle {bundle_name}: no skill directories")
+    bundle_versions: dict[str, str] = {}
+
+    for skill_dir in bundle_dirs:
+        name = skill_dir.name
+        skill_path = skill_dir / "SKILL.md"
+        if not skill_path.exists():
+            fail(f"{name}: missing SKILL.md")
+            continue
+        text = skill_path.read_text()
+        if is_root:
+            skill_texts[name] = text
+        else:
+            extra_prose_files.extend(sorted(skill_dir.rglob("*.md")))
+        if name in seen_names:
+            fail(f"{name}: duplicate skill name in bundles {seen_names[name]} and {bundle_name}")
+        seen_names[name] = bundle_name
+
+        match = FRONTMATTER.match(text)
+        if not match:
+            fail(f"{name}: SKILL.md must start with YAML frontmatter")
+            continue
+        frontmatter = match.group(1)
+
+        declared = re.search(r"(?m)^name:\s*(\S+)\s*$", frontmatter)
+        if not declared:
+            fail(f"{name}: frontmatter has no name field")
+        elif declared.group(1) != name:
+            fail(f"{name}: frontmatter name {declared.group(1)!r} != directory name")
+        if not NAME_FORMAT.match(name) or len(name) > 64:
+            fail(
+                f"{name}: skill names are lowercase letters, digits, and single "
+                "hyphens, at most 64 characters"
+            )
+
+        description = extract_description(frontmatter)
+        if not description:
+            fail(f"{name}: frontmatter has no (or an empty) description field")
+        elif len(description) > 1024:
+            fail(f"{name}: description is {len(description)} chars; the spec caps it at 1024")
+
+        for nonportable in ("compatibility:", "allowed-tools:"):
+            if re.search(rf"(?m)^{re.escape(nonportable)}", frontmatter):
+                fail(f"{name}: remove nonportable frontmatter key {nonportable[:-1]}")
+
+        version = re.search(r'(?m)^\s+version:\s*["\']([^"\']+)["\']\s*$', frontmatter)
+        if version:
+            versions[name] = version.group(1)
+            bundle_versions[name] = version.group(1)
+        else:
+            fail(f"{name}: metadata.version is missing")
+
+        if len(text.splitlines()) > 500:
+            fail(f"{name}: SKILL.md exceeds the 500-line portability budget")
+
+        if is_root and name in CATALOG_CONSUMERS and f"../{CATALOG}/SKILL.md" not in text:
+            fail(f"{name}: must point at the shared catalog via ../{CATALOG}/SKILL.md")
+
+    # Version agreement within the bundle
+    plugin_version = str(bundle["plugin"].get("version", ""))
+    bundle_all = set(bundle_versions.values()) | ({plugin_version} if plugin_version else set())
+    if len(bundle_all) > 1:
+        fail(
+            f"version mismatch in bundle {bundle_name}: skills={bundle_versions}, "
+            f"plugin.json={plugin_version!r}"
+        )
 
 # --- Catalog integrity ------------------------------------------------------
 
-DOC_FILES = [ROOT / "README.md", ROOT / "AGENTS.md", *sorted((ROOT / "docs").glob("*.md"))]
+DOC_FILES = [
+    ROOT / "README.md",
+    ROOT / "AGENTS.md",
+    *sorted((ROOT / "docs").glob("*.md")),
+    *extra_prose_files,
+]
 
 catalog_text = skill_texts.get(CATALOG, "")
 if catalog_text:
@@ -186,8 +262,10 @@ if catalog_text:
                     )
 
     count_claims: set[int] = set()
+    # Writing bundle and repo docs only; other bundles' files may mention
+    # unrelated pattern counts.
     claim_sources = [t for n, t in skill_texts.items()] + [
-        p.read_text() for p in DOC_FILES if p.exists()
+        p.read_text() for p in DOC_FILES if p.exists() and p not in extra_prose_files
     ]
     for source in claim_sources:
         for claim in re.findall(r"\b([0-9]{2,3}) (?:numbered )?patterns\b", source):
