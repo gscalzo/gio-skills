@@ -19,6 +19,9 @@ The skill keeps `SKILL.md` short and moves depth into `references/`:
 architecture, quality gates, verification, agent workflow, skills, and
 kickoff questions. Each reference loads on demand.
 
+Installing the whole repo (`npx skills add gscalzo/gio-skills`) also
+installs this bundle next to the writing skills.
+
 ## Usage
 
 ```

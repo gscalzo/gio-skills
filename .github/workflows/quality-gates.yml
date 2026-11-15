@@ -29,7 +29,7 @@ jobs:
           out="$(npx -y skills add . --list 2>&1)"
           echo "$out"
           status=0
-          for dir in skills/*/; do
+          for dir in skills/*/ plugins/*/skills/*/; do
             name="$(basename "$dir")"
             if ! printf '%s' "$out" | grep -q "$name"; then
               echo "::error::skills CLI did not discover $name"

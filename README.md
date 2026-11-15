@@ -12,10 +12,11 @@ Claude Code plugins.
 ## Layout
 
 ```
-skills/<name>/          one skill per directory: SKILL.md plus optional
-                        references/, scripts/, assets/
-.claude-plugin/         marketplace and plugin manifests; each plugin
-                        bundles a set of skills
+skills/<name>/          the root plugin's (writing) skills: SKILL.md plus
+                        optional references/, scripts/, assets/
+plugins/<name>/         other bundles, each with .claude-plugin/plugin.json
+                        and skills/<skill>/ (for example apple-apps)
+.claude-plugin/         marketplace manifest and the root plugin manifest
 docs/<bundle>.md        usage guide per bundle
 scripts/                validation and tooling
 ```
@@ -44,6 +45,9 @@ As a Claude Code plugin:
 /plugin marketplace add gscalzo/gio-skills
 /plugin install <plugin>@gio-skills
 ```
+
+Installing everything also installs the `apple-apps` bundle alongside the
+writing skills; pick single skills with `--skill <name>`.
 
 Plugin skills are invoked as `/<plugin>:<skill>`. Manual installs also
 work: copy a skill directory into wherever your harness expects skills.

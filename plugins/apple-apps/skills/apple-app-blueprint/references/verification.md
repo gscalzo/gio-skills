@@ -1,6 +1,6 @@
 # Verification skill and feature map
 
-Read this when creating the project's `verify-<app>` skill. The pattern follows poteto's verification-skill-example.
+Read this when creating the project's `verify-<app>` skill. The pattern follows the verification example repo at https://github.com/poteto/verification-skill-example.
 
 ## Layout
 ```

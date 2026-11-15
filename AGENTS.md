@@ -27,12 +27,16 @@ in `docs/packaging.md`.
 - The `writing` plugin's marketplace `source` is `./`, which makes it pick
   up the top-level `skills/` directory. Supporting files (`references/`,
   `scripts/` inside a skill) ship with both install paths.
-- Growth path for future plugins: add `plugins/<name>/skills/<skill>/`
-  directories and declare each plugin in `marketplace.json` with
-  `"source": "./plugins/<name>"`. The skills CLI reads
-  marketplace-declared local plugin sources and scans their `skills/`
-  directory one level deep, so declared nested plugins stay discoverable.
-  Undeclared nested directories are invisible; declare or don't add them.
+- Every other bundle is a nested plugin: `plugins/<name>/` with its own
+  `.claude-plugin/plugin.json` and `skills/<skill>/` directories, declared
+  in `marketplace.json` with `"source": "./plugins/<name>"`. The `apple-apps`
+  bundle is the current example. A new Apple skill goes in
+  `plugins/apple-apps/skills/<skill>/` and versions with that bundle, not
+  with `writing`. The skills CLI reads marketplace-declared local plugin
+  sources and scans their `skills/` directory one level deep, so declared
+  nested plugins stay discoverable. Undeclared nested directories are
+  invisible; the validator fails on a `plugins/<name>/` directory with no
+  marketplace entry.
 
 ## Adding a skill
 
@@ -71,11 +75,13 @@ npx skills add . --list        # every skills/* directory must be listed
 The validator is dependency-free Python and enforces:
 
 - repo shape: no root `SKILL.md`; `skills/` present and non-empty
-- manifests: `marketplace.json` and `plugin.json` parse, agree on the
-  plugin name, and the root plugin's source stays `./`
+- manifests: `marketplace.json` and every `plugin.json` parse and agree on
+  plugin names; the root plugin's source stays `./`, no other entry may use
+  `./`, and every `plugins/<name>/` directory has a marketplace entry
 - frontmatter: name format and directory match, description present and
   within 1024 characters, portable keys only, `metadata.version` present
-- versions: every skill and `plugin.json` carry the same version
+- versions: within each bundle, every skill and its `plugin.json` carry the
+  same version (bundles version independently)
 - the 500-line budget per `SKILL.md`
 - writing-bundle integrity: contiguous catalog numbering, §N references
   in other skills resolve to real pattern numbers, pattern-count claims
@@ -91,7 +97,8 @@ commit and say why in the commit message.
 ## Versioning
 
 Skills in a bundle version together: bump every skill's
-`metadata.version` and the plugin's `version` in one change. Behavior
+`metadata.version` and that bundle's `plugin.json` `version` in one change.
+Bundles (`writing`, `apple-apps`) version independently. Behavior
 changes bump minor, fixes bump patch, renames or breaking layout changes
 bump major. Note non-obvious fixes (a repeated mis-edit, a tricky failure
 mode) in the bundle doc so the reasoning survives.

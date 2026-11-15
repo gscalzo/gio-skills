@@ -25,7 +25,7 @@ Discovery rules, verified against the CLI's source and by direct testing:
   Do not rely on the fallback.
 - If `.claude-plugin/marketplace.json` exists, plugins with a local
   `source` (starting with `./`) get their `skills/` directory scanned one
-  level deep as well. This is what keeps a future `plugins/<name>/`
+  level deep as well. This is what keeps the `plugins/<name>/`
   layout discoverable, provided each plugin is declared in the
   marketplace manifest.
 - Skills are deduplicated by frontmatter `name`; first discovered wins.
@@ -72,12 +72,22 @@ load on demand.
 
 ## Why this repo's layout
 
-One copy of each skill has to serve both toolchains. The only layout both
-discover first-class is the one used here: skills in root `skills/`, the
-marketplace plugin rooted at `./`. Probes against the real CLI confirmed
-the failure modes this avoids: a root `SKILL.md` hides the whole
-`skills/` directory, and undeclared nested paths like
-`plugins/writing/skills/` are invisible.
+One copy of each skill has to serve both toolchains. The layout has two
+parts. The root plugin (`writing`) keeps its skills in root `skills/`, with
+its marketplace entry rooted at `./`. Every other bundle is a nested plugin
+under `plugins/<name>/` with its own `.claude-plugin/plugin.json` and
+`skills/` directory, declared in the marketplace with
+`"source": "./plugins/<name>"`. `apple-apps` is the current example. Both
+parts are discovered first-class: the skills CLI scans root `skills/` and
+the `skills/` directory of each declared local plugin source.
 
-`scripts/validate-package.py` encodes all of this; CI runs it plus a
-discovery check and plugin validation on every push.
+Probes against the real CLI confirmed the failure modes this avoids: a
+root `SKILL.md` hides the whole `skills/` directory, and nested paths with
+no marketplace declaration are invisible. A new skill therefore goes in
+the `skills/` directory of the bundle it belongs to and versions with that
+bundle.
+
+`scripts/validate-package.py` encodes all of this, including a failure for
+any `plugins/<name>/` directory with no matching marketplace entry. CI runs
+it plus a discovery check (root and nested bundles) and plugin validation
+on every push.

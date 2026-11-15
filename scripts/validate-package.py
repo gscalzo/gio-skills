@@ -64,6 +64,17 @@ marketplace = load_json(ROOT / ".claude-plugin" / "marketplace.json", ".claude-p
 listed_entries = marketplace.get("plugins", [])
 listed = {entry.get("name") for entry in listed_entries}
 
+declared_sources = {entry.get("source") for entry in listed_entries}
+plugins_dir = ROOT / "plugins"
+if plugins_dir.is_dir():
+    for plugin_dir in sorted(d for d in plugins_dir.iterdir() if d.is_dir()):
+        expected = f"./plugins/{plugin_dir.name}"
+        if expected not in declared_sources:
+            fail(
+                f"plugins/{plugin_dir.name}/ has no marketplace entry with "
+                f"source {expected!r}; undeclared plugins are invisible to the skills CLI"
+            )
+
 # A bundle is a plugin plus the skills directory it ships. The root plugin
 # owns the top-level skills/; every other declared plugin lives under its own
 # source directory with its own plugin.json and skills/.
@@ -92,7 +103,13 @@ bundles.append(
 
 for entry in listed_entries:
     source = entry.get("source")
-    if source == "./" or entry.get("name") == root_plugin.get("name"):
+    if source == "./" and entry.get("name") != root_plugin.get("name"):
+        fail(
+            f"marketplace plugin {entry.get('name')!r} uses source './', which is "
+            f"reserved for the root plugin {root_plugin.get('name')!r}"
+        )
+        continue
+    if entry.get("name") == root_plugin.get("name"):
         continue
     if not isinstance(source, str) or not source.startswith("./"):
         fail(f"marketplace plugin {entry.get('name')!r}: source must be a './' relative path")
@@ -245,8 +262,10 @@ if catalog_text:
                     )
 
     count_claims: set[int] = set()
+    # Writing bundle and repo docs only; other bundles' files may mention
+    # unrelated pattern counts.
     claim_sources = [t for n, t in skill_texts.items()] + [
-        p.read_text() for p in DOC_FILES if p.exists()
+        p.read_text() for p in DOC_FILES if p.exists() and p not in extra_prose_files
     ]
     for source in claim_sources:
         for claim in re.findall(r"\b([0-9]{2,3}) (?:numbered )?patterns\b", source):

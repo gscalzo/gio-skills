@@ -13,10 +13,12 @@ App targets (thin: scenes, menus, entitlements)
 CLI → Core only         Metrics tool → swift-syntax
 ```
 
-Rules the gate enforces:
-- Core never imports SwiftUI, AppKit or UIKit.
+Gate-enforced rule:
+- Core never imports SwiftUI, AppKit or UIKit. The metrics tool checks imports and fails the gate.
+
+Review rules (no tool checks these unless you add a check; reviewers and agents hold the line):
 - A view binds to one view model, reads `state`, calls `send`. No logic in views.
-- The platform bridge renders view-model state and turns input into actions; it never mutates the model directly.
+- The platform bridge renders view-model state and turns input into actions; the bridge never mutates the model directly.
 
 ## The edit algebra
 Every user action is an `Edit` value. `apply(_:) -> (Document, inverse: Edit)`. One user gesture is one undo group. Projection into a platform text or view system is tested by round-tripping: apply an edit, project, map the platform change back, compare.

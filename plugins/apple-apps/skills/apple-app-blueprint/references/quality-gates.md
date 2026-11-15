@@ -18,7 +18,7 @@ Cheapest first, so failures arrive fast:
 `gate.sh --full` adds mutation testing (Muter) on the model and persistence packages, limited to changed files, and UI performance tests.
 
 ## CRAP for Swift
-CRAP = CC² × (1 − coverage)³ + CC, per function. A function with complexity 10 needs about 42 % line coverage to stay under 15; trivial functions pass untested; complex untested code fails. That is the point: it targets risk, not lines.
+CRAP = CC² × (1 − coverage)³ + CC, per function. Solving CRAP ≤ 15 for coverage c: a function with complexity 10 needs about 63 % line coverage (100·(1−c)³ + 10 ≤ 15); complexity 5 needs about 26 % (25·(1−c)³ + 5 ≤ 15); complexity 3 or less passes untested (3² + 3 = 12); complexity 15 passes only at full coverage. Trivial functions pass untested; complex untested code fails. That is the point: it targets risk, not lines.
 
 There is no off-the-shelf Swift CRAP tool, so build a small SwiftPM executable on swift-syntax:
 
@@ -48,6 +48,7 @@ Lowering a bar or narrowing scope requires an ADR change. Raising one happens in
 
 ## Hooks
 - **Agent Stop hook** (Claude Code `Stop` in `.claude/settings.json`): run `scripts/stop-gate.sh`. It hashes Swift sources, project and package manifests and the quality config; if the hash matches the last green run it exits 0, otherwise it runs the gate and on failure prints a short report to stderr and exits 2. Exit code 2 blocks the stop and sends the report back to the agent, so a session cannot finish red. A hook that only echoes a reminder enforces nothing.
+- **The hook must not trap a session forever.** Read `stop_hook_active` from the JSON on the hook's stdin; it is true when the agent is already continuing because of an earlier block. Keep blocking while the failures are fixable. Allow the stop (exit 0) in two cases: the same failure (same report hash) has blocked N consecutive stops, with N = 3 by default, or an explicit escape hatch is set, either the env var `GATE_BYPASS_REASON` or a `.gate-bypass` file whose contents are the reason. On a bypass, print a loud report to stderr and append the bypass (time, reason, failing checks, report hash) to the gate report file so the human sees it at the next look. Never bypass silently; an unrecorded bypass is the same as no gate.
 - **PostToolUse hook**: format edited Swift files with swiftformat.
 - **pre-push**: `gate.sh --full`. **post-merge** on `main`: `make install`.
 - Keep mutation and UI performance out of the Stop hook; they take minutes.
